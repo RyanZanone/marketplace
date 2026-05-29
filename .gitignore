@@ -1,0 +1,8 @@
+target/
+.DS_Store
+.idea/
+*.iml
+.vscode/
+
+# Local DB credentials — copy db.properties.example and fill in.
+src/main/resources/db.properties

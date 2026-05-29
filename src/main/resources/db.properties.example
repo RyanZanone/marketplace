@@ -1,0 +1,3 @@
+db.url=jdbc:oracle:thin:@<db_name_lowercase>_tp?TNS_ADMIN=/absolute/path/to/Wallet_marketplacedb
+db.user=ADMIN
+db.password=<your-password>
