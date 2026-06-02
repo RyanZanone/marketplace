@@ -272,3 +272,38 @@ CREATE SEQUENCE seq_edepot_notice      START WITH 1000 INCREMENT BY 1 NOCACHE;
 CREATE SEQUENCE seq_edepot_shipment    START WITH 1000 INCREMENT BY 1 NOCACHE;
 CREATE SEQUENCE seq_edepot_repl_order  START WITH 1000 INCREMENT BY 1 NOCACHE;
 CREATE SEQUENCE seq_stock_number       START WITH 1    INCREMENT BY 1 NOCACHE;
+
+
+-- =====================================================================
+-- Policy seed rows.
+-- The spec (Project Description.txt §2.3) says discount and shipping
+-- rules may change at any time and must live in the database. These are
+-- the rules in effect at system bootstrap. Both tables are keyed on
+-- (name, effective_date); new policies are added as new rows and the
+-- application picks the row with MAX(effective_date) <= SYSDATE.
+--
+--   Discount  Gold:   10%   (spec: "new or gold ... 10%")
+--             New:    10%
+--             Silver:  5%   (spec: "silver ... 5%")
+--             Green:   0%   (spec implies no discount)
+--
+--   Shipping  pct:               10  -> 10% of subtotal
+--             waiver_threshold:  100 -> waived when subtotal > $100
+--                                      (and always for new customers,
+--                                       handled in app logic)
+-- =====================================================================
+INSERT INTO EMART_DISCOUNT_RULE (status_type, effective_date, discount_pct)
+    VALUES ('Gold',   SYSDATE, 10);
+INSERT INTO EMART_DISCOUNT_RULE (status_type, effective_date, discount_pct)
+    VALUES ('Silver', SYSDATE,  5);
+INSERT INTO EMART_DISCOUNT_RULE (status_type, effective_date, discount_pct)
+    VALUES ('Green',  SYSDATE,  0);
+INSERT INTO EMART_DISCOUNT_RULE (status_type, effective_date, discount_pct)
+    VALUES ('New',    SYSDATE, 10);
+
+INSERT INTO EMART_SHIPPING_RULE (rule_name, effective_date, value)
+    VALUES ('pct',              SYSDATE,  10);
+INSERT INTO EMART_SHIPPING_RULE (rule_name, effective_date, value)
+    VALUES ('waiver_threshold', SYSDATE, 100);
+
+COMMIT;
